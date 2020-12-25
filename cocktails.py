@@ -7,7 +7,7 @@ from pymongo import MongoClient
 
 import sqlite3 as sl
 
-from flask import Flask, redirect, url_for, render_template, session, request
+from flask import Flask, redirect, url_for, render_template, session, request, Blueprint, flash, g
 import flask_login
 from flask_login import LoginManager
 
@@ -21,11 +21,18 @@ from couchbase_core.cluster import PasswordAuthenticator
 lm = LoginManager()
 
 app = Flask(__name__)
+bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
 
 @app.route('/success/<name>')
 def success(name):
@@ -40,9 +47,9 @@ def login():
         return render_template('login.html',message=message)
     if request.method == 'POST':
         if request.form['username'] != 'admin' or request.form['password'] != 'admin':
-            error = 'Invalid Credentials. Please try again.'
+            message = 'Invalid Credentials. Please try again.'
         else:
-            #return redirect(url_for('home'))
+            return redirect(url_for('dashboard'))
             return render_template('login.html', error=error)
 
 
